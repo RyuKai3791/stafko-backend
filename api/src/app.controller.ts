@@ -10,8 +10,9 @@ export class AppController {
   constructor(
     private appService: AppService,
     private staffService: StaffService,
+    
     @InjectRepository(UserRepository)
-    private userRepository: UserRepository
+      private userRepository: UserRepository
     ) {}
 
   @Get()
@@ -20,7 +21,7 @@ export class AppController {
     if (user !== undefined) {
       return user.staffId;
     } else {
-      throw new Error('User not found');
+      throw new Error('User not found.');
     }
   }
 

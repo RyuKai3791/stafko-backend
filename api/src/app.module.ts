@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { CrudModule } from './crud/crud.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DirectusService } from './directus.service';
 
 @Module({
   imports: [
@@ -17,4 +18,5 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   providers: [AppService],
   exports: [TypeOrmModule],
 })
+
 export class AppModule {}
