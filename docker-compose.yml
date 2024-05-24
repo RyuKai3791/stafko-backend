@@ -8,8 +8,11 @@ services:
       - "3000:3000"
     depends_on:
       - db
+      - directus
     environment:
-      DATABASE_URL: postgres://user:password@db:5432/postgres
+      - DATABASE_URL=postgres://user:password@db:5432/dbname
+      - DIRECTUS_URL=http://directus:8055
+      - NODE_ENV=development
     command: sh -c "npm install && npm run build && npm run start:dev"
 
   db:
@@ -22,6 +25,20 @@ services:
       POSTGRES_DB: dbname
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  directus:
+    image: directus/directus:latest
+    ports:
+      - "8055:8055"
+    environment:
+      - KEY=supersecretkey
+      - SECRET=supersecretpassword
+      - DB_CLIENT=pg
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=dbname
+      - DB_USER=user
+      - DB_PASSWORD=password
 
 volumes:
   postgres_data:
