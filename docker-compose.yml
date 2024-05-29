@@ -1,44 +1,62 @@
-version: '3.8'
+version: "3"
 services:
-  app:
-    build:
-      context: ./api/
-      dockerfile: ./Dockerfile
-    ports: 
-      - "3000:3000"
-    depends_on:
-      - db
-      - directus
-    environment:
-      - DATABASE_URL=postgres://user:password@db:5432/dbname
-      - DIRECTUS_URL=http://directus:8055
-      - NODE_ENV=development
-    command: sh -c "npm install && npm run build && npm run start:dev"
-
-  db:
-    image: postgres:13
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: dbname
+  database:
+    image: postgis/postgis:13-master
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./data/database:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: "directus"
+      POSTGRES_PASSWORD: "directus"
+      POSTGRES_DB: "directus"
+    restart: unless-stopped
+
+  cache:
+    image: redis:6
+    restart: unless-stopped
 
   directus:
-    image: directus/directus:latest
+    image: directus/directus:10.11.0
     ports:
-      - "8055:8055"
+      - 8055:8055
+    volumes:
+      - ./uploads:/directus/uploads
+      - ./extensions:/directus/extensions
+    depends_on:
+      - cache
+      - database
     environment:
-      - KEY=supersecretkey
-      - SECRET=supersecretpassword
-      - DB_CLIENT=pg
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_DATABASE=dbname
-      - DB_USER=user
-      - DB_PASSWORD=password
+      KEY: "255d861b-5ea1-5996-9aa3-922530ec40b1"
+      SECRET: "6116487b-cda1-52c2-b5b5-c8022c45e263"
 
-volumes:
-  postgres_data:
+      DB_CLIENT: "pg"
+      DB_HOST: "database"
+      DB_PORT: "5432"
+      DB_DATABASE: "directus"
+      DB_USER: "directus"
+      DB_PASSWORD: "directus"
+
+      CACHE_ENABLED: "true"
+      CACHE_STORE: "redis"
+      REDIS: "redis://cache:6379"
+
+      ADMIN_EMAIL: "admin@example.com"
+      ADMIN_PASSWORD: "d1r3ctu5"
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./api
+    ports:
+      - 3000:3000
+    depends_on:
+      - database
+      - cache
+    environment:
+      DATABASE_HOST: database
+      DATABASE_PORT: 5432
+      DATABASE_USER: directus
+      DATABASE_PASSWORD: directus
+      DATABASE_NAME: directus
+      REDIS_HOST: cache
+      REDIS_PORT: 6379
+    restart: unless-stopped

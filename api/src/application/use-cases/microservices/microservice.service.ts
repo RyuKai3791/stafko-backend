@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DirectusService } from '../modules/directus/directus.service';
+import { DirectusService } from '../directus/directus.service';
 
 @Injectable()
 export class MicroserviceService {

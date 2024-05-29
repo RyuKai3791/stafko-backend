@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Post, Body, Patch, Delete } from '@nestjs/common';
-import { DirectusService } from './directus.service';
+import { DirectusService } from '../../../application/use-cases/directus/directus.service';
 
 @Controller('directus')
 export class DirectusController {
